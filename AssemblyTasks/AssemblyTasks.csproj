@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="../BuildLocal.props" Condition="Exists('../BuildLocal.props')" />
+	
+	<PropertyGroup>
+		<PackageId>Fayti1703.AssemblyTasks</PackageId>
+		<Authors>Fayti1703</Authors>
+		<PackageTags>msbuild</PackageTags>
+		<RepositoryUrl>https://github.com/Fayti1703/CS-AssemblyTasks</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseExpression>MPL-2.0-no-copyleft-exception</PackageLicenseExpression>
+		<PackageVersion>1.0.0</PackageVersion>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<LangVersion>12</LangVersion>
+		<ImplicitUsings>false</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>Fayti1703.AssemblyTasks</RootNamespace>
+		<AssemblyName>Fayti1703.AssemblyTasks</AssemblyName>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="/" />
+		<None Include="../LICENSE" Pack="true" PackagePath="/" />
+		<None Include="build/**" Pack="true" PackagePath="/build/" />
+		<None Include="$(OutputPath)/$(AssemblyName).dll" Pack="true" PackagePath="/build/" />
+		<None Include="$(OutputPath)/Mono.Cecil.dll" Pack="true" PackagePath="/build/" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" IncludeAssets="compile;analyzers;build" />
+	  <PackageReference Include="Microsoft.Build.Framework" Version="17.8.3" />
+		<PackageReference Include="Mono.Cecil" Version="0.11.5" IncludeAssets="compile;runtime" />
+	</ItemGroup>
+
+</Project>

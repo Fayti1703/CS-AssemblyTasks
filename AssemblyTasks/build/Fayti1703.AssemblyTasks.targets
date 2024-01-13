@@ -1,0 +1,4 @@
+<Project>
+	<UsingTask TaskName="Fayti1703.AssemblyTasks.PublishAllTypes" AssemblyFile="Fayti1703.AssemblyTasks.dll" />
+	<UsingTask TaskName="Fayti1703.AssemblyTasks.MakeReferenceAssembly" AssemblyFile="Fayti1703.AssemblyTasks.dll" />
+</Project>
