@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Build.Framework;
@@ -7,6 +6,7 @@ using Mono.Cecil;
 
 namespace Fayti1703.AssemblyTasks;
 
+[UsedImplicitly]
 public class PublishAllTypes : AssemblyTask {
 
 	override protected void HandleAssembly(AssemblyDefinition assembly) {

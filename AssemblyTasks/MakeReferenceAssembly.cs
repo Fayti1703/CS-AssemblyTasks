@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
@@ -10,6 +9,7 @@ using Mono.Collections.Generic;
 
 namespace Fayti1703.AssemblyTasks;
 
+[UsedImplicitly]
 public class MakeReferenceAssembly : AssemblyTask {
 
 	override protected void HandleAssembly(AssemblyDefinition assembly) {
