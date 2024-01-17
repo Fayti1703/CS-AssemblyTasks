@@ -10,29 +10,18 @@ using Mono.Collections.Generic;
 
 namespace Fayti1703.AssemblyTasks;
 
-public class MakeReferenceAssembly : ITask  {
-	public IBuildEngine BuildEngine { get; set; } = null!;
-	public ITaskHost HostObject { get; set; } = null!;
+public class MakeReferenceAssembly : AssemblyTask {
 
-	[Required]
-	[UsedImplicitly]
-	public string SourceFilePath { get; set; } = null!;
-	[Required]
-	[UsedImplicitly]
-	public string TargetFilePath { get; set; } = null!;
-
-	public bool Execute() {
-		using AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(this.SourceFilePath);
+	override protected void HandleAssembly(AssemblyDefinition assembly) {
 		foreach(TypeDefinition type in assembly.Modules.SelectMany(module => module.Types))
 			EmptyTypeImplementation(type);
 
 		MethodReference refAsmAttrCtor = assembly.MainModule.ImportReference(typeof(ReferenceAssemblyAttribute).GetConstructor([]));
 		assembly.CustomAttributes.Add(new CustomAttribute(refAsmAttrCtor));
+	}
 
-		string? dirPath = Path.GetDirectoryName(this.TargetFilePath);
-		if(dirPath != null)
-			Directory.CreateDirectory(dirPath);
-		assembly.Write(this.TargetFilePath);
+	override protected void WriteAssembly(AssemblyDefinition assembly) {
+		base.WriteAssembly(assembly);
 		this.BuildEngine.LogMessageEvent(new BuildMessageEventArgs(
 			"Wrote reference assembly to '{0}'",
 			null!,
@@ -41,7 +30,6 @@ public class MakeReferenceAssembly : ITask  {
 			DateTime.Now,
 			this.TargetFilePath
 		));
-		return true;
 	}
 
 	private static readonly Collection<Instruction> emptyBody = [

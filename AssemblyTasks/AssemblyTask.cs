@@ -34,6 +34,6 @@ abstract public class AssemblyTask : ITask {
 		string? dirPath = Path.GetDirectoryName(this.TargetFilePath);
 		if(dirPath != null)
 			Directory.CreateDirectory(dirPath);
-		assembly.Write();
+		assembly.Write(this.TargetFilePath);
 	}
 }

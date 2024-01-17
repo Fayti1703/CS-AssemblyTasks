@@ -7,28 +7,17 @@ using Mono.Cecil;
 
 namespace Fayti1703.AssemblyTasks;
 
-public class PublishAllTypes : ITask {
-	public IBuildEngine BuildEngine { get; set; } = null!;
-	public ITaskHost HostObject { get; set; } = null!;
+public class PublishAllTypes : AssemblyTask {
 
-	[Required]
-	[UsedImplicitly]
-	public string SourceFilePath { get; set; } = null!;
-	[Required]
-	[UsedImplicitly]
-	public string TargetFilePath { get; set; } = null!;
-
-	public bool Execute() {
-		using AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(this.SourceFilePath);
+	override protected void HandleAssembly(AssemblyDefinition assembly) {
 		foreach(TypeDefinition type in assembly.Modules.SelectMany(module => module.Types)) {
 			type.IsPublic = true;
 			PublishTypeContents(type);
 		}
+	}
 
-		string? dirPath = Path.GetDirectoryName(this.TargetFilePath);
-		if(dirPath != null)
-			Directory.CreateDirectory(dirPath);
-		assembly.Write(this.TargetFilePath);
+	override protected void WriteAssembly(AssemblyDefinition assembly) {
+		base.WriteAssembly(assembly);
 		this.BuildEngine.LogMessageEvent(new BuildMessageEventArgs(
 			"Wrote all-public assembly to '{0}'",
 			null!,
@@ -37,7 +26,6 @@ public class PublishAllTypes : ITask {
 			DateTime.Now,
 			this.TargetFilePath
 		));
-		return true;
 	}
 
 	private static void PublishTypeContents(TypeDefinition type)
