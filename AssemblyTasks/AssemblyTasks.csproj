@@ -11,7 +11,6 @@
 		<PackageVersion>1.0.0</PackageVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 	</PropertyGroup>
 
@@ -34,9 +33,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" IncludeAssets="compile;analyzers;build" />
-	  <PackageReference Include="Microsoft.Build.Framework" Version="17.8.3" />
-		<PackageReference Include="Mono.Cecil" Version="0.11.5" IncludeAssets="compile;runtime" />
+	  <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" IncludeAssets="compile;analyzers;build" PrivateAssets="all" />
+	  <PackageReference Include="Microsoft.Build.Framework" Version="17.8.3" PrivateAssets="all" />
+		<PackageReference Include="Mono.Cecil" Version="0.11.5" IncludeAssets="compile;runtime" PrivateAssets="all" />
 	</ItemGroup>
 
 	<Target Name="CopyPack" AfterTargets="Pack">
