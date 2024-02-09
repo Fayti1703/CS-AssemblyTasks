@@ -25,7 +25,12 @@ abstract public class AssemblyTask : ITask {
 	}
 
 	virtual protected AssemblyDefinition ReadAssembly() {
-		return AssemblyDefinition.ReadAssembly(this.SourceFilePath);
+		ReaderParameters readerParams = this.GetAssemblyReadParameters();
+		return AssemblyDefinition.ReadAssembly(this.SourceFilePath, readerParams);
+	}
+
+	virtual protected ReaderParameters GetAssemblyReadParameters() {
+		return new ReaderParameters();
 	}
 
 	abstract protected void HandleAssembly(AssemblyDefinition assembly);
@@ -34,6 +39,11 @@ abstract public class AssemblyTask : ITask {
 		string? dirPath = Path.GetDirectoryName(this.TargetFilePath);
 		if(dirPath != null)
 			Directory.CreateDirectory(dirPath);
-		assembly.Write(this.TargetFilePath);
+		WriterParameters writerParams = this.GetAssemblyWriteParameters();
+		assembly.Write(this.TargetFilePath, writerParams);
+	}
+
+	virtual protected WriterParameters GetAssemblyWriteParameters() {
+		return new WriterParameters();
 	}
 }
