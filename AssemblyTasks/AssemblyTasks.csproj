@@ -8,7 +8,7 @@
 		<RepositoryUrl>https://github.com/Fayti1703/CS-AssemblyTasks</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageLicenseExpression>MPL-2.0-no-copyleft-exception</PackageLicenseExpression>
-		<PackageVersion>1.0.0</PackageVersion>
+		<PackageVersion>1.1.0</PackageVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
