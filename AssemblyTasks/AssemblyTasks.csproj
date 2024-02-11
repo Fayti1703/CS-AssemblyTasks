@@ -15,7 +15,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>12</LangVersion>
 		<ImplicitUsings>false</ImplicitUsings>
 		<Nullable>enable</Nullable>
