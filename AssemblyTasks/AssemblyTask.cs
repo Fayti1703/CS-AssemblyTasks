@@ -20,6 +20,8 @@ abstract public class AssemblyTask : ITask {
 
 
 	public bool Execute() {
+		if(!this.PreExecute())
+			return false;
 		try {
 			using AssemblyDefinition assembly = this.ReadAssembly();
 			this.HandleAssembly(assembly);
@@ -28,8 +30,13 @@ abstract public class AssemblyTask : ITask {
 		} catch(Exception e) {
 			this.LogExceptionError(e);
 			return false;
+		} finally {
+			this.Cleanup();
 		}
 	}
+
+	virtual protected bool PreExecute() => true;
+	virtual protected void Cleanup() { }
 
 	protected void LogExceptionError(Exception exception, string? errorCode = null) {
 		if(exception is AggregateException aggregate) {
