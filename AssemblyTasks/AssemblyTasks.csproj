@@ -23,6 +23,7 @@
 		<RootNamespace>Fayti1703.AssemblyTasks</RootNamespace>
 		<AssemblyName>Fayti1703.AssemblyTasks</AssemblyName>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<Deterministic>true</Deterministic>
 	</PropertyGroup>
 
 	<ItemGroup>
