@@ -31,6 +31,7 @@
 		<None Include="build/**" Pack="true" PackagePath="/build/" />
 		<None Include="$(OutputPath)/$(AssemblyName).dll" Pack="true" PackagePath="/build/" />
 		<None Include="$(OutputPath)/Mono.Cecil.dll" Pack="true" PackagePath="/build/" />
+		<None Include="$(OutputPath)/Mono.Cecil.Pdb.dll" Pack="true" PackagePath="/build/" />
 	</ItemGroup>
 
 	<ItemGroup>
