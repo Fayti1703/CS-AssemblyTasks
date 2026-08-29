@@ -29,3 +29,14 @@ Create a 'full' [Reference Assembly](https://learn.microsoft.com/en-us/dotnet/st
 from an existing assembly.
 
 All method implementations are replaced with `throw null;`.
+
+Additionally, the optional `OnlyPublic` parameter can be set to `true` to remove all non-public members from the resulting assembly.
+This can be useful for creating reference assemblies that expose only the public API of an assembly.
+
+```xml
+<Fayti1703.AssemblyTasks.MakeReferenceAssembly
+	SourceFilePath="path/to/assembly.dll"
+	TargetFilePath="lib/ref/assembly.dll"
+	OnlyPublic="true"
+/>
+```
