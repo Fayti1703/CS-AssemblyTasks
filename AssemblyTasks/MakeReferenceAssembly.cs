@@ -16,7 +16,7 @@ public class MakeReferenceAssembly : AssemblyTask {
 	public bool OnlyPublic { get; set; } = false;
 
 	override protected void HandleAssembly(AssemblyDefinition assembly) {
-		foreach (ModuleDefinition module in assembly.Modules)
+		foreach(ModuleDefinition module in assembly.Modules)
 			FilterCollection(module.Types, this.HandleType);
 
 		MethodReference refAsmAttrCtor = assembly.MainModule.ImportReference(typeof(ReferenceAssemblyAttribute).GetConstructor([]));
@@ -33,7 +33,7 @@ public class MakeReferenceAssembly : AssemblyTask {
 	}
 
 	private bool HandleType(TypeDefinition type) {
-		if (this.OnlyPublic && !type.IsPublic) return false;
+		if(this.OnlyPublic && !type.IsPublic) return false;
 
 		FilterCollection(type.NestedTypes, this.HandleType);
 		FilterCollection(type.Methods, this.HandleMethod);
@@ -42,20 +42,20 @@ public class MakeReferenceAssembly : AssemblyTask {
 	}
 
 	private bool HandleMethod(MethodDefinition method) {
-		if (this.OnlyPublic && !method.IsPublic) return false;
+		if(this.OnlyPublic && !method.IsPublic) return false;
 
-		if (!method.HasBody)
+		if(!method.HasBody)
 			return true;
 
 		method.Body = new MethodBody(method);
-		foreach (Instruction instruction in emptyBody)
+		foreach(Instruction instruction in emptyBody)
 			method.Body.Instructions.Add(instruction);
 
 		return true;
 	}
 
 	private bool HandleField(FieldDefinition field) {
-		if (this.OnlyPublic && !field.IsPublic) return false;
+		if(this.OnlyPublic && !field.IsPublic) return false;
 
 		// do nothing; all we really do with fields is conditionally remove them
 		return true;
