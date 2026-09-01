@@ -33,7 +33,16 @@ public class MakeReferenceAssembly : AssemblyTask {
 	}
 
 	private bool HandleType(TypeDefinition type) {
-		if(this.OnlyPublic && !type.IsPublic) return false;
+		if(this.OnlyPublic) {
+			if(
+				!type.IsPublic &&
+				/* We need to preserve any compiler-injected types, which are marked with `[Embedded]`.
+				 * (this is usually `EmbeddedAttribute` itself, `NullableAttribute` and `NullableContextAttribute`)
+				 * Failing to do this breaks newer .NET assemblies that have these.
+				 */
+				type.CustomAttributes.All(x => x.AttributeType.FullName != "Microsoft.CodeAnalysis.EmbeddedAttribute")
+			) return false;
+		}
 
 		FilterCollection(type.NestedTypes, this.HandleType);
 		FilterCollection(type.Methods, this.HandleMethod);
