@@ -64,7 +64,10 @@ public class MakeReferenceAssembly : AssemblyTask {
 	}
 
 	private bool HandleField(FieldDefinition field) {
-		if(this.OnlyPublic && !field.IsPublic) return false;
+		if(
+			this.OnlyPublic &&
+			(field.IsAssembly || field.IsFamilyAndAssembly || field.IsPrivate)
+		) return false;
 
 		this.FilterInternalAttributes(field.CustomAttributes);
 
