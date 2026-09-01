@@ -17,50 +17,48 @@ public class MakeReferenceAssembly : AssemblyTask {
 
 	override protected void HandleAssembly(AssemblyDefinition assembly) {
 		foreach (ModuleDefinition module in assembly.Modules)
-			foreach (TypeDefinition type in module.Types.ToList())
-				HandleType(type, module.Types);
+			FilterCollection(module.Types, this.HandleType);
 
 		MethodReference refAsmAttrCtor = assembly.MainModule.ImportReference(typeof(ReferenceAssemblyAttribute).GetConstructor([]));
 		assembly.CustomAttributes.Add(new CustomAttribute(refAsmAttrCtor));
 	}
 
-	private void HandleType(TypeDefinition type, Collection<TypeDefinition> collection) {
-		if (this.OnlyPublic && !type.IsPublic) {
-			collection.Remove(type);
-			return;
+	private static void FilterCollection<T>(Collection<T> collection, Func<T, bool> body) {
+		for(int i = 0; i < collection.Count; i++) {
+			if(body(collection[i])) continue;
+
+			collection.RemoveAt(i);
+			i--;
 		}
-
-		foreach (TypeDefinition nestedType in type.NestedTypes.ToList())
-			HandleType(nestedType, type.NestedTypes);
-
-		foreach (MethodDefinition method in type.Methods.ToList())
-			HandleMethod(method, type.Methods);
-
-		foreach (FieldDefinition field in type.Fields.ToList())
-			HandleField(field, type.Fields);
 	}
 
-	private void HandleMethod(MethodDefinition method, Collection<MethodDefinition> collection) {
-		if (this.OnlyPublic && !method.IsPublic) {
-			collection.Remove(method);
-			return;
-		}
+	private bool HandleType(TypeDefinition type) {
+		if (this.OnlyPublic && !type.IsPublic) return false;
+
+		FilterCollection(type.NestedTypes, this.HandleType);
+		FilterCollection(type.Methods, this.HandleMethod);
+		FilterCollection(type.Fields, this.HandleField);
+		return true;
+	}
+
+	private bool HandleMethod(MethodDefinition method) {
+		if (this.OnlyPublic && !method.IsPublic) return false;
 
 		if (!method.HasBody)
-			return;
+			return true;
 
 		method.Body = new MethodBody(method);
 		foreach (Instruction instruction in emptyBody)
 			method.Body.Instructions.Add(instruction);
+
+		return true;
 	}
 
-	private void HandleField(FieldDefinition field, Collection<FieldDefinition> collection) {
-		if (this.OnlyPublic && !field.IsPublic) {
-			collection.Remove(field);
-			return;
-		}
+	private bool HandleField(FieldDefinition field) {
+		if (this.OnlyPublic && !field.IsPublic) return false;
 
 		// do nothing; all we really do with fields is conditionally remove them
+		return true;
 	}
 
 	override protected void WriteAssembly(AssemblyDefinition assembly) {
