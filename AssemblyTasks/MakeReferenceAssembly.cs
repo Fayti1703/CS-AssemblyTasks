@@ -49,7 +49,11 @@ public class MakeReferenceAssembly : AssemblyTask {
 	}
 
 	private bool HandleMethod(MethodDefinition method) {
-		if(this.OnlyPublic && (method.IsAssembly || method.IsFamilyAndAssembly || method.IsPrivate)) return false;
+		if(
+			this.OnlyPublic &&
+			(method.IsAssembly || method.IsFamilyAndAssembly || method.IsPrivate) &&
+			method.Module.EntryPoint != method
+		) return false;
 
 		this.FilterInternalAttributes(method.CustomAttributes);
 
@@ -82,20 +86,30 @@ public class MakeReferenceAssembly : AssemblyTask {
 			if(!IsInternalReference(attribute.AttributeType)) return true;
 
 			TypeDefinition attrType = attribute.AttributeType.Resolve();
-			if(IsPubliclyRemovable(attrType)) return false; /* attribute will be removed, get rid of the reference */
-
-			TypeDefinition? ancestorType = attrType.DeclaringType;
-			while(ancestorType != null) {
-				if(IsPubliclyRemovable(ancestorType)) return false;
-				ancestorType = ancestorType.DeclaringType;
+			if(CheckWithAncestry(attrType, IsPubliclyRemovable)) {
+				/* attribute will be removed, get rid of the reference */
+				return false;
 			}
 			return true;
 		});
 	}
 
+	private static bool CheckWithAncestry(TypeDefinition type, Func<TypeDefinition, bool> check) {
+		TypeDefinition? currentType = type;
+		while(currentType != null) {
+			if(check(currentType)) return true;
+			currentType = currentType.DeclaringType;
+		}
+		return false;
+	}
+
 	private static bool IsPubliclyRemovable(TypeDefinition type) {
+		MethodDefinition? entryPoint = type.Module.EntryPoint;
+		bool containsEntryPoint = false;
+		if(entryPoint != null) containsEntryPoint = CheckWithAncestry(entryPoint.DeclaringType, x => x != type);
 		return
 			!type.IsPublic &&
+			!containsEntryPoint &&
 			/* We need to preserve any compiler-injected types, which are marked with `[Embedded]`.
 			 * (this is usually `EmbeddedAttribute` itself, `NullableAttribute` and `NullableContextAttribute`)
 			 * Failing to do this breaks newer .NET assemblies that have these.
