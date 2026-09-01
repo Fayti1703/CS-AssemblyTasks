@@ -13,7 +13,7 @@ namespace Fayti1703.AssemblyTasks;
 public class MakeReferenceAssembly : AssemblyTask {
 
 	[UsedImplicitly]
-	public bool OnlyPublic { get; set; } = false;
+	public bool WithAllMembers { get; set; } = true;
 
 	override protected void HandleAssembly(AssemblyDefinition assembly) {
 		foreach(ModuleDefinition module in assembly.Modules) {
@@ -35,7 +35,7 @@ public class MakeReferenceAssembly : AssemblyTask {
 	}
 
 	private bool HandleType(TypeDefinition type) {
-		if(this.OnlyPublic && IsPubliclyRemovable(type)) return false;
+		if(!this.WithAllMembers && IsPubliclyRemovable(type)) return false;
 
 		this.FilterInternalAttributes(type.CustomAttributes);
 		foreach(InterfaceImplementation iImpl in type.Interfaces) {
@@ -50,7 +50,7 @@ public class MakeReferenceAssembly : AssemblyTask {
 
 	private bool HandleMethod(MethodDefinition method) {
 		if(
-			this.OnlyPublic &&
+			!this.WithAllMembers &&
 			(method.IsAssembly || method.IsFamilyAndAssembly || method.IsPrivate) &&
 			method.Module.EntryPoint != method
 		) return false;
@@ -69,7 +69,7 @@ public class MakeReferenceAssembly : AssemblyTask {
 
 	private bool HandleField(FieldDefinition field) {
 		if(
-			this.OnlyPublic &&
+			!this.WithAllMembers &&
 			(field.IsAssembly || field.IsFamilyAndAssembly || field.IsPrivate)
 		) return false;
 
@@ -80,7 +80,7 @@ public class MakeReferenceAssembly : AssemblyTask {
 	}
 
 	private void FilterInternalAttributes(Collection<CustomAttribute> attributes) {
-		if(!this.OnlyPublic) return; /* no need to do anything */
+		if(this.WithAllMembers) return; /* no need to do anything */
 
 		FilterCollection(attributes, attribute => {
 			if(!IsInternalReference(attribute.AttributeType)) return true;

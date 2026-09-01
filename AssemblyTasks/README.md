@@ -31,12 +31,12 @@ from an existing assembly.
 All method implementations are replaced with `throw null;`.
 
 By default, a 'full' reference assembly is created, which preserves private types for reflection purposes.
-The optional `OnlyPublic` parameter can be set to `true` to create a regular reference assembly that only contains the public members.
+The optional `WithAllMembers` parameter can be set to `false` to create a regular reference assembly that only contains public API members.
 
 ```xml
 <Fayti1703.AssemblyTasks.MakeReferenceAssembly
 	SourceFilePath="path/to/assembly.dll"
 	TargetFilePath="lib/ref/assembly.dll"
-	OnlyPublic="true"
+	WithAllMembers="false"
 />
 ```
