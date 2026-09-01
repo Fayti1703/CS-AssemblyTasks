@@ -49,7 +49,7 @@ public class MakeReferenceAssembly : AssemblyTask {
 	}
 
 	private bool HandleMethod(MethodDefinition method) {
-		if(this.OnlyPublic && !method.IsPublic) return false;
+		if(this.OnlyPublic && (method.IsAssembly || method.IsFamilyAndAssembly || method.IsPrivate)) return false;
 
 		this.FilterInternalAttributes(method.CustomAttributes);
 
