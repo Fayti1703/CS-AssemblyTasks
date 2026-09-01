@@ -11,7 +11,7 @@ namespace Fayti1703.AssemblyTasks;
 
 [UsedImplicitly]
 public class MakeReferenceAssembly : AssemblyTask {
-	
+
 	[UsedImplicitly]
 	public bool OnlyPublic { get; set; } = false;
 
@@ -32,10 +32,10 @@ public class MakeReferenceAssembly : AssemblyTask {
 
 		foreach (TypeDefinition nestedType in type.NestedTypes.ToList())
 			HandleType(nestedType, type.NestedTypes);
-		
+
 		foreach (MethodDefinition method in type.Methods.ToList())
 			HandleMethod(method, type.Methods);
-		
+
 		foreach (FieldDefinition field in type.Fields.ToList())
 			HandleField(field, type.Fields);
 	}
@@ -48,7 +48,7 @@ public class MakeReferenceAssembly : AssemblyTask {
 
 		if (!method.HasBody)
 			return;
-		
+
 		method.Body = new MethodBody(method);
 		foreach (Instruction instruction in emptyBody)
 			method.Body.Instructions.Add(instruction);
@@ -59,7 +59,7 @@ public class MakeReferenceAssembly : AssemblyTask {
 			collection.Remove(field);
 			return;
 		}
-		
+
 		// do nothing; all we really do with fields is conditionally remove them
 	}
 
