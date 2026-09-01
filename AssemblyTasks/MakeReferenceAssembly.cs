@@ -16,8 +16,10 @@ public class MakeReferenceAssembly : AssemblyTask {
 	public bool OnlyPublic { get; set; } = false;
 
 	override protected void HandleAssembly(AssemblyDefinition assembly) {
-		foreach(ModuleDefinition module in assembly.Modules)
+		foreach(ModuleDefinition module in assembly.Modules) {
+			this.FilterInternalAttributes(module.CustomAttributes);
 			FilterCollection(module.Types, this.HandleType);
+		}
 
 		MethodReference refAsmAttrCtor = assembly.MainModule.ImportReference(typeof(ReferenceAssemblyAttribute).GetConstructor([]));
 		assembly.CustomAttributes.Add(new CustomAttribute(refAsmAttrCtor));
@@ -33,15 +35,11 @@ public class MakeReferenceAssembly : AssemblyTask {
 	}
 
 	private bool HandleType(TypeDefinition type) {
-		if(this.OnlyPublic) {
-			if(
-				!type.IsPublic &&
-				/* We need to preserve any compiler-injected types, which are marked with `[Embedded]`.
-				 * (this is usually `EmbeddedAttribute` itself, `NullableAttribute` and `NullableContextAttribute`)
-				 * Failing to do this breaks newer .NET assemblies that have these.
-				 */
-				type.CustomAttributes.All(x => x.AttributeType.FullName != "Microsoft.CodeAnalysis.EmbeddedAttribute")
-			) return false;
+		if(this.OnlyPublic && IsPubliclyRemovable(type)) return false;
+
+		this.FilterInternalAttributes(type.CustomAttributes);
+		foreach(InterfaceImplementation iImpl in type.Interfaces) {
+			this.FilterInternalAttributes(iImpl.CustomAttributes);
 		}
 
 		FilterCollection(type.NestedTypes, this.HandleType);
@@ -52,6 +50,8 @@ public class MakeReferenceAssembly : AssemblyTask {
 
 	private bool HandleMethod(MethodDefinition method) {
 		if(this.OnlyPublic && !method.IsPublic) return false;
+
+		this.FilterInternalAttributes(method.CustomAttributes);
 
 		if(!method.HasBody)
 			return true;
@@ -66,8 +66,51 @@ public class MakeReferenceAssembly : AssemblyTask {
 	private bool HandleField(FieldDefinition field) {
 		if(this.OnlyPublic && !field.IsPublic) return false;
 
+		this.FilterInternalAttributes(field.CustomAttributes);
+
 		// do nothing; all we really do with fields is conditionally remove them
 		return true;
+	}
+
+	private void FilterInternalAttributes(Collection<CustomAttribute> attributes) {
+		if(!this.OnlyPublic) return; /* no need to do anything */
+
+		FilterCollection(attributes, attribute => {
+			if(!IsInternalReference(attribute.AttributeType)) return true;
+
+			TypeDefinition attrType = attribute.AttributeType.Resolve();
+			if(IsPubliclyRemovable(attrType)) return false; /* attribute will be removed, get rid of the reference */
+
+			TypeDefinition? ancestorType = attrType.DeclaringType;
+			while(ancestorType != null) {
+				if(IsPubliclyRemovable(ancestorType)) return false;
+				ancestorType = ancestorType.DeclaringType;
+			}
+			return true;
+		});
+	}
+
+	private static bool IsPubliclyRemovable(TypeDefinition type) {
+		return
+			!type.IsPublic &&
+			/* We need to preserve any compiler-injected types, which are marked with `[Embedded]`.
+			 * (this is usually `EmbeddedAttribute` itself, `NullableAttribute` and `NullableContextAttribute`)
+			 * Failing to do this breaks newer .NET assemblies that have these.
+			 */
+			type.CustomAttributes.All(x => x.AttributeType.FullName != "Microsoft.CodeAnalysis.EmbeddedAttribute")
+		;
+	}
+
+	private static bool IsInternalReference(TypeReference reference) {
+		/* see Mono.Cecil.MetadataResolver.Resolve */
+		IMetadataScope scope = reference.Scope;
+		return scope.MetadataScopeType switch {
+			/* n.b. this is likely external, but double-checking regardless */
+			/* n.b. `reference.Module` is the _declaring_ module. */
+			MetadataScopeType.AssemblyNameReference => reference.Module.Assembly.FullName == ((AssemblyNameReference) scope).FullName,
+			MetadataScopeType.ModuleReference or MetadataScopeType.ModuleDefinition => false,
+			_ => throw new NotSupportedException() /* mirror Cecil */
+		};
 	}
 
 	override protected void WriteAssembly(AssemblyDefinition assembly) {
