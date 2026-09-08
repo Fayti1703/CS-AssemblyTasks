@@ -25,7 +25,18 @@ types, fields, properties and methods set to `public` at `TargetFilePath`.
 />
 ```
 
-Create a 'full' [Reference Assembly](https://learn.microsoft.com/en-us/dotnet/standard/assembly/reference-assemblies) (also known as a "metadata-only assembly")
+Create a (full) [Reference Assembly](https://learn.microsoft.com/en-us/dotnet/standard/assembly/reference-assemblies) (also known as a "metadata-only assembly")
 from an existing assembly.
 
 All method implementations are replaced with `throw null;`.
+
+By default, a 'full' reference assembly is created, which preserves private types for reflection purposes.
+The optional `WithAllMembers` parameter can be set to `false` to create a regular reference assembly that only contains public API members.
+
+```xml
+<Fayti1703.AssemblyTasks.MakeReferenceAssembly
+	SourceFilePath="path/to/assembly.dll"
+	TargetFilePath="lib/ref/assembly.dll"
+	WithAllMembers="false"
+/>
+```
